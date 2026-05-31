@@ -1,4 +1,4 @@
-console.log("Welcome to Spotify — Mood Theme Edition 🎨");
+console.log("Welcome to Spotify — Mood Theme + Journey Map 🗺️");
 
 // ── Song Data with Mood ─────────────────────────────────
 const songs = [
@@ -23,25 +23,31 @@ const moodConfig = {
 };
 
 // ── State ────────────────────────────────────────────────
-let songIndex     = 0;
-let currentMood   = null;
-let audioElement  = new Audio(songs[0].filePath);
+let songIndex    = 0;
+let currentMood  = null;
+let audioElement = new Audio(songs[0].filePath);
+
+// Journey: array of { songName, coverPath, mood, time }
+let journeyLog   = [];
 
 // ── DOM Refs ─────────────────────────────────────────────
-const masterPlay      = document.getElementById('masterPlay');
-const myProgressBar   = document.getElementById('myProgressBar');
-const gif             = document.getElementById('gif');
-const masterSongName  = document.getElementById('masterSongName');
-const moodBadge       = document.getElementById('moodBadge');
-const themeFlash      = document.getElementById('themeFlash');
-const songItemsEl     = Array.from(document.getElementsByClassName('songItem'));
+const masterPlay     = document.getElementById('masterPlay');
+const myProgressBar  = document.getElementById('myProgressBar');
+const gif            = document.getElementById('gif');
+const masterSongName = document.getElementById('masterSongName');
+const moodBadge      = document.getElementById('moodBadge');
+const themeFlash     = document.getElementById('themeFlash');
+const songItemsEl    = Array.from(document.getElementsByClassName('songItem'));
+const journeyPanel   = document.getElementById('journeyPanel');
+const journeyList    = document.getElementById('journeyList');
+const journeyToggle  = document.getElementById('journeyToggle');
+const journeyCount   = document.getElementById('journeyCount');
+const clearJourney   = document.getElementById('clearJourney');
 
 // ── Render Song List ─────────────────────────────────────
 songItemsEl.forEach((el, i) => {
     el.getElementsByTagName('img')[0].src = songs[i].coverPath;
     el.getElementsByClassName('songName')[0].innerText = songs[i].songName;
-
-    // Mood tag
     const cfg = moodConfig[songs[i].mood];
     const tag = el.querySelector('.moodTag');
     if (tag) tag.textContent = cfg.emoji + ' ' + songs[i].mood;
@@ -50,31 +56,85 @@ songItemsEl.forEach((el, i) => {
 // ── Apply Mood Theme ─────────────────────────────────────
 function applyMood(mood) {
     if (mood === currentMood) return;
-
-    // Remove previous mood class
     document.body.classList.remove('mood-happy', 'mood-sad', 'mood-night', 'mood-energetic');
     document.body.classList.add('mood-' + mood);
 
-    // Flash overlay
     themeFlash.style.background = getComputedStyle(document.body).getPropertyValue('--mood-accent');
     themeFlash.classList.remove('flash');
-    void themeFlash.offsetWidth; // reflow to restart animation
+    void themeFlash.offsetWidth;
     themeFlash.classList.add('flash');
 
-    // Update badge
     const cfg = moodConfig[mood];
     moodBadge.textContent = cfg.label;
     moodBadge.style.display = 'inline-block';
-
     currentMood = mood;
-    console.log(`🎨 Theme switched to: ${mood}`);
 }
+
+// ── Journey Map ──────────────────────────────────────────
+function addToJourney(song) {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Don't duplicate back-to-back same song
+    if (journeyLog.length > 0 && journeyLog[journeyLog.length - 1].songName === song.songName) return;
+
+    journeyLog.push({ ...song, time });
+    renderJourney();
+}
+
+function renderJourney() {
+    journeyCount.textContent = journeyLog.length;
+
+    if (journeyLog.length === 0) {
+        journeyList.innerHTML = `
+            <div class="journey-empty">
+                <span>🎵</span>
+                <p>Play a song to start your journey</p>
+            </div>`;
+        return;
+    }
+
+    journeyList.innerHTML = journeyLog.map((entry, i) => {
+        const isFirst  = i === 0;
+        const isLast   = i === journeyLog.length - 1;
+        const cfg      = moodConfig[entry.mood];
+        return `
+            <div class="journey-node ${isLast ? 'journey-node--active' : ''}">
+                ${isFirst ? `<div class="journey-start-label">START</div>` : ''}
+                <div class="journey-connector">
+                    <div class="journey-dot mood-dot-${entry.mood}"></div>
+                    ${!isLast ? `<div class="journey-line"></div>` : ''}
+                </div>
+                <div class="journey-card mood-card-${entry.mood}">
+                    <img src="${entry.coverPath}" alt="cover" class="journey-cover">
+                    <div class="journey-info">
+                        <span class="journey-song-name">${entry.songName}</span>
+                        <span class="journey-meta">${cfg.emoji} ${entry.mood} · ${entry.time}</span>
+                    </div>
+                    ${isLast ? `<span class="journey-now-badge">NOW</span>` : ''}
+                </div>
+            </div>`;
+    }).join('');
+
+    // Auto-scroll to bottom (latest song)
+    journeyList.scrollTop = journeyList.scrollHeight;
+}
+
+// Toggle panel open/close
+journeyToggle.addEventListener('click', () => {
+    journeyPanel.classList.toggle('open');
+    journeyToggle.textContent = journeyPanel.classList.contains('open') ? '✕ Close Map' : '🗺️ My Journey';
+});
+
+clearJourney.addEventListener('click', () => {
+    journeyLog = [];
+    renderJourney();
+    journeyCount.textContent = 0;
+});
 
 // ── Highlight active song row ────────────────────────────
 function highlightActiveSong(index) {
-    songItemsEl.forEach((el, i) => {
-        el.classList.toggle('playing', i === index);
-    });
+    songItemsEl.forEach((el, i) => el.classList.toggle('playing', i === index));
 }
 
 // ── Play a song by index ─────────────────────────────────
@@ -94,11 +154,11 @@ function playSong(index) {
     applyMood(song.mood);
     makeAllPlays();
 
-    // Update the clicked song's icon to pause
     const icons = document.getElementsByClassName('songItemPlay');
-    if (icons[index]) {
-        icons[index].classList.replace('fa-play-circle', 'fa-pause-circle');
-    }
+    if (icons[index]) icons[index].classList.replace('fa-play-circle', 'fa-pause-circle');
+
+    // ← Add to journey map
+    addToJourney(song);
 }
 
 // ── Master play/pause ────────────────────────────────────
@@ -126,8 +186,7 @@ myProgressBar.addEventListener('change', () => {
 
 // ── Auto-play next ───────────────────────────────────────
 audioElement.addEventListener('ended', () => {
-    const next = (songIndex + 1) % songs.length;
-    playSong(next);
+    playSong((songIndex + 1) % songs.length);
 });
 
 // ── Reset all item play icons ────────────────────────────
@@ -142,7 +201,6 @@ Array.from(document.getElementsByClassName('songItemPlay')).forEach((el) => {
     el.addEventListener('click', (e) => {
         const index = parseInt(e.target.id);
         if (songIndex === index && !audioElement.paused) {
-            // Pause current
             audioElement.pause();
             masterPlay.classList.replace('fa-pause-circle', 'fa-play-circle');
             gif.style.opacity = 0;
@@ -161,3 +219,6 @@ document.getElementById('next').addEventListener('click', () => {
 document.getElementById('previous').addEventListener('click', () => {
     playSong((songIndex - 1 + songs.length) % songs.length);
 });
+
+// Init empty journey
+renderJourney();

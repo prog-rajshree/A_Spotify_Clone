@@ -12,6 +12,21 @@
 <!-- Mood transition flash overlay -->
 <div id="themeFlash"></div>
 
+<!-- ── Journey Map Panel ─────────────────────────── -->
+<div id="journeyPanel">
+    <div class="journey-header">
+        <div>
+            <h3>🗺️ Today's Journey</h3>
+            <p>Songs you've listened to</p>
+        </div>
+        <button id="clearJourney">Clear</button>
+    </div>
+    <div id="journeyList"></div>
+</div>
+
+<!-- ── Journey Toggle Button ─────────────────────── -->
+<button id="journeyToggle">🗺️ My Journey <span id="journeyCount">0</span></button>
+
 <nav>
     <ul>
         <li class="brand"><img src="logo.png" alt="Spotify"> Spotify</li>
@@ -32,63 +47,54 @@
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">05:34 <i id="0" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">03:12 <i id="1" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">03:45 <i id="2" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">04:01 <i id="3" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">03:58 <i id="4" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">04:22 <i id="5" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">04:10 <i id="6" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">05:02 <i id="7" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
                 <span class="moodTag"></span>
                 <span class="songlistplay"><span class="timestamp">04:45 <i id="8" class="far songItemPlay fa-play-circle"></i></span></span>
             </div>
-
             <div class="songItem">
                 <img alt="cover">
                 <span class="songName">Let me Love You</span>
@@ -114,7 +120,6 @@
     </div>
 </div>
 
-<!-- FontAwesome loaded BEFORE script so icons exist when JS runs -->
 <script src="https://kit.fontawesome.com/26504e4a1f.js" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 </body>
